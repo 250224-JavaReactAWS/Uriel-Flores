@@ -2,24 +2,23 @@ package com.revature.models;
 
 public class Jersey {
     private int jersey_id;
-    private char size;
-    private String specification;
+    private String size;
     private double price;
     private int stock;
-    private int review_id;
     private int team_id;
+    private int jersey_type_id;
 
     public Jersey (){
 
     }
 
-    public Jersey(char size, String specification, double price, int stock, int review_id, int team_id) {
+    public Jersey(int jersey_id, String size, double price, int stock, int team_id, int jersey_type_id) {
+        this.jersey_id = jersey_id;
         this.size = size;
-        this.specification = specification;
         this.price = price;
         this.stock = stock;
-        this.review_id = review_id;
         this.team_id = team_id;
+        this.jersey_type_id = jersey_type_id;
     }
 
     public int getJersey_id() {
@@ -30,20 +29,12 @@ public class Jersey {
         this.jersey_id = jersey_id;
     }
 
-    public char getSize() {
+    public String getSize() {
         return size;
     }
 
-    public void setSize(char size) {
+    public void setSize(String size) {
         this.size = size;
-    }
-
-    public String getSpecification() {
-        return specification;
-    }
-
-    public void setSpecification(String specification) {
-        this.specification = specification;
     }
 
     public double getPrice() {
@@ -62,19 +53,19 @@ public class Jersey {
         this.stock = stock;
     }
 
-    public int getReview_id() {
-        return review_id;
-    }
-
-    public void setReview_id(int review_id) {
-        this.review_id = review_id;
-    }
-
     public int getTeam_id() {
         return team_id;
     }
 
     public void setTeam_id(int team_id) {
         this.team_id = team_id;
+    }
+
+    public int getJersey_type_id() {
+        return jersey_type_id;
+    }
+
+    public void setJersey_type_id(int jersey_type_id) {
+        this.jersey_type_id = jersey_type_id;
     }
 }

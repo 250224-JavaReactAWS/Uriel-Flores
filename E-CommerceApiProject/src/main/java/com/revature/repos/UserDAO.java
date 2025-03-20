@@ -8,4 +8,6 @@ public interface UserDAO extends GeneralDAO<User> {
 
     User getByEmail (String email);
 
+    Boolean resetPassword (String password, int id);
+
 }

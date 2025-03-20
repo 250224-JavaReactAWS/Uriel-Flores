@@ -2,7 +2,12 @@ package com.revature.repos;
 
 import com.revature.models.Jersey;
 
+import java.util.List;
+
 public interface JerseyDAO extends GeneralDAO<Jersey> {
 
-    Jersey getByTeamName (String name);
+    List<Jersey> getByTeamName (String name);
+
+
+
 }

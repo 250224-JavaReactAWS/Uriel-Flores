@@ -2,8 +2,11 @@ package com.revature.services;
 
 import com.revature.models.User;
 import com.revature.repos.UserDAO;
+import com.revature.response.ErrorMessage;
+import io.javalin.http.Context;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,6 +82,13 @@ public class UserService {
         return matcher.matches();
     }
 
+    //Method to verify if the user is authenticated
+    public User isAuth (int id){
+        User user = userDAO.getById(id);
+        return user;
+    }
+
+
     //Method to register new user
     public User registerUser (String firstName, String lastname, String email, String password, String username){
 
@@ -108,6 +118,11 @@ public class UserService {
     //Method to update a user
     public User updateUser (User updatedUser){
         return userDAO.update(updatedUser);
+    }
+
+    //Method to reset the password
+    public boolean resetPassword (String password, int id){
+        return userDAO.resetPassword(password, id);
     }
 
 

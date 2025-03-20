@@ -6,6 +6,7 @@ import com.revature.services.UserService;
 import io.javalin.http.Context;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class UserController {
 
@@ -143,14 +144,14 @@ public class UserController {
         ArrayList<ErrorMessage> errorMessages = new ArrayList<>();
 
         // Validate that the user is logged in
-        if (ctx.sessionAttribute("user_id") == null) {
+        Integer userId = ctx.sessionAttribute("user_id");
+        if (userId == null) {
             ctx.status(401);
             errorMessages.add(new ErrorMessage("You must be logged in to view this endpoint"));
             ctx.json(errorMessages);
             return;
         }
 
-        int userId = ctx.sessionAttribute("user_id");
         User user = userService.getById(userId);
 
         //Validate that the user exists
@@ -216,6 +217,67 @@ public class UserController {
 
         ctx.status(201);
         ctx.json(updatedUser);
+
+    }
+
+    public void resetPasswordHandler (Context ctx){
+
+        ArrayList<ErrorMessage> errorMessages = new ArrayList<>();
+
+        // Validate that the user is logged in
+        Integer userId = ctx.sessionAttribute("user_id");
+        if (userId == null) {
+            ctx.status(401);
+            errorMessages.add(new ErrorMessage("You must be logged in to view this endpoint"));
+            ctx.json(errorMessages);
+            return;
+        }
+
+        User user = userService.getById(userId);
+
+        //Validate that the user exists
+        if (user == null){
+            ctx.status(401);
+            errorMessages.add(new ErrorMessage("Invalid ID"));
+            ctx.json(errorMessages);
+            return;
+        }
+
+        //Validate password
+        if (!userService.validatePassword(Objects.requireNonNull(ctx.formParam("password")))){
+            ctx.status(400);
+            //TO DO Add error message
+            errorMessages.add(new ErrorMessage("Password must have at least one Uppercase/Lowercase character and minimum 8 characters"));
+        }
+
+        //Validate that both passwords matches;
+        String password = ctx.formParam("password");
+        String password2 = ctx.formParam("password2");
+
+        assert password2 != null;
+        assert password != null;
+        if (!password.equals(password2)){
+            ctx.status(400);
+            //TO DO Add error message
+            errorMessages.add(new ErrorMessage("Passwords are not equal"));
+            ctx.json(errorMessages);
+            return;
+        }
+
+        //Hash password
+        String hashPass = userService.hashPass(password);
+        boolean result = userService.resetPassword(hashPass, userId);
+
+
+        if (!result){
+            ctx.status(500);
+            errorMessages.add(new ErrorMessage("Something went wrong!"));
+            ctx.json(errorMessages);
+            return;
+        }
+
+        ctx.status(201);
+        ctx.json(result);
 
     }
 }

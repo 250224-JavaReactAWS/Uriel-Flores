@@ -76,6 +76,28 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
+    public Boolean resetPassword(String newPassword, int id) {
+        int result = 0;
+        try(Connection conn = ConnectionUtil.getConnection()){
+
+            String sql = "UPDATE users SET password = ? WHERE user_id = ?;";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, newPassword);
+            ps.setInt(2, id);
+
+            result = ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Could not reset password");
+        }
+
+        return result > 0;
+    }
+
+    @Override
     public User create(User obj) {
         try (Connection conn = ConnectionUtil.getConnection()) {
 

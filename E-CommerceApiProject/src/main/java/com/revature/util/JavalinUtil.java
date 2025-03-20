@@ -1,8 +1,12 @@
 package com.revature.util;
 
+import com.revature.controllers.JerseyController;
 import com.revature.controllers.UserController;
+import com.revature.repos.JerseyDAO;
+import com.revature.repos.JerseyDAOImpl;
 import com.revature.repos.UserDAO;
 import com.revature.repos.UserDAOImpl;
+import com.revature.services.JerseyService;
 import com.revature.services.UserService;
 import io.javalin.Javalin;
 
@@ -16,19 +20,25 @@ public class JavalinUtil {
         UserService userService = new UserService(userDAO);
         UserController userController = new UserController(userService);
 
+        JerseyDAO jerseyDAO = new JerseyDAOImpl();
+        JerseyService jerseyService = new JerseyService(jerseyDAO);
+        JerseyController jerseyController = new JerseyController(jerseyService);
+
         return Javalin.create(config -> {
             config.router.apiBuilder(() -> {
                 path("/user", () -> {
                     post("/register", userController::registerUserHandler);
                     post("/login", userController::loginHandler);
-                    post("/update", userController::updateHandler);
+                    patch("/update", userController::updateHandler);
+                    patch("/reset", userController::resetPasswordHandler);
                 });
-//                path("/jerseys", () -> {
-//                    get("/", userController::getAllUsersHandler);
-//                });
-//                path("/admin", () -> {
+                path("/jerseys", () -> {
+                    post("/club", jerseyController::getByTeamNameHandler);
+                });
+                path("/admin", () -> {
 //                    get("/users", userController::getAllUsersHandler);
-//                });
+                    patch("/update/jersey/{id}", jerseyController::updateJersey);
+                });
             });
         }).start(port);
     }
