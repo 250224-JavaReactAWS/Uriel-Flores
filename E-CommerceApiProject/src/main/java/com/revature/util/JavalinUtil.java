@@ -1,13 +1,8 @@
 package com.revature.util;
 
-import com.revature.controllers.JerseyController;
-import com.revature.controllers.UserController;
-import com.revature.repos.JerseyDAO;
-import com.revature.repos.JerseyDAOImpl;
-import com.revature.repos.UserDAO;
-import com.revature.repos.UserDAOImpl;
-import com.revature.services.JerseyService;
-import com.revature.services.UserService;
+import com.revature.controllers.*;
+import com.revature.repos.*;
+import com.revature.services.*;
 import io.javalin.Javalin;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
@@ -24,6 +19,22 @@ public class JavalinUtil {
         JerseyService jerseyService = new JerseyService(jerseyDAO);
         JerseyController jerseyController = new JerseyController(jerseyService);
 
+        TeamDAO teamDAO = new TeamDAOImpl();
+        TeamService teamService = new TeamService(teamDAO);
+        TeamController teamController = new TeamController(teamService);
+
+        CartItemDAO cartItemDAO = new CartItemDAOImpl();
+        CartItemService cartItemService = new CartItemService(cartItemDAO);
+        CartItemController cartItemController = new CartItemController(cartItemService, jerseyService);
+
+        OrderItemDAO orderItemDAO = new OrderItemDAOImpl();
+        OrderItemService orderItemService = new OrderItemService(orderItemDAO);
+        OrderItemController orderItemController = new OrderItemController(orderItemService);
+
+        OrderDAO orderDAO = new OrderDAOImpl();
+        OrderService orderService = new OrderService(orderDAO);
+        OrderController orderController = new OrderController(orderService, cartItemService, orderItemService, jerseyService);
+
         return Javalin.create(config -> {
             config.router.apiBuilder(() -> {
                 path("/user", () -> {
@@ -32,12 +43,36 @@ public class JavalinUtil {
                     patch("/update", userController::updateHandler);
                     patch("/reset", userController::resetPasswordHandler);
                 });
+                path("/jersey", () -> {
+                    post("/search", jerseyController::getByTeamNameHandler);
+                    get("/{id}", jerseyController::getJerseyDetailsHandler);
+                });
                 path("/jerseys", () -> {
-                    post("/club", jerseyController::getByTeamNameHandler);
+                    get("/", jerseyController::getAllJerseysHandler);
                 });
                 path("/admin", () -> {
 //                    get("/users", userController::getAllUsersHandler);
+                    post("/add/jersey", jerseyController::addNewJerseyHandler);
                     patch("/update/jersey/{id}", jerseyController::updateJersey);
+                    delete("/delete/jersey", jerseyController::deleteJerseyByIdHandler);
+                    post("/add/team", teamController::addNewTeamHandler);
+                    patch("/update/team/{id}", teamController::updateTeamHandler);
+                    delete("/delete/team", teamController::deleteTeamByIdHandler);
+                    get("/orders/all", orderController::getAllOrdersHandler);
+                    get("/orders/pending", orderController::getAllPendingOrdersHandler);
+                    get("/orders/shipped", orderController::getAllShippedOrdersHandler);
+                    get("/orders/delivered", orderController::getAllDeliveredOrdersHandler);
+                    patch("/orders/update-status/{id}", orderController::updateStatusHandler);
+                });
+                path("/cart", () -> {
+                    post("/add-item", cartItemController::addCartItemHandler);
+                    get("/my-cart", cartItemController::getUserCartHandler);
+                    delete("/delete-item", cartItemController::deleteCartItemHandler);
+                    post("/buy", orderController::createNewOrderHandler);
+                });
+                path("/order", () -> {
+                    get("/my-orders", orderController::getAllOrdersByUserIdHandler);
+
                 });
             });
         }).start(port);

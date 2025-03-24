@@ -21,7 +21,15 @@ public class Jersey {
         this.jersey_type_id = jersey_type_id;
     }
 
-    public int getJersey_id() {
+    public Jersey(String size, double price, int stock, int team_id, int jersey_type_id) {
+        this.size = size;
+        this.price = price;
+        this.stock = stock;
+        this.team_id = team_id;
+        this.jersey_type_id = jersey_type_id;
+    }
+
+    public Integer getJersey_id() {
         return jersey_id;
     }
 
@@ -37,7 +45,7 @@ public class Jersey {
         this.size = size;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
@@ -45,7 +53,7 @@ public class Jersey {
         this.price = price;
     }
 
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
 
@@ -53,7 +61,7 @@ public class Jersey {
         this.stock = stock;
     }
 
-    public int getTeam_id() {
+    public Integer getTeam_id() {
         return team_id;
     }
 
@@ -61,11 +69,21 @@ public class Jersey {
         this.team_id = team_id;
     }
 
-    public int getJersey_type_id() {
+    public Integer getJersey_type_id() {
         return jersey_type_id;
     }
 
     public void setJersey_type_id(int jersey_type_id) {
         this.jersey_type_id = jersey_type_id;
+    }
+
+    public Jersey synchronize(Jersey jersey){
+        int id = jersey.getJersey_id() != 0  ? jersey.getJersey_id() : this.jersey_id;
+        String size = !jersey.getSize().isEmpty() ? jersey.getSize() : this.size;
+        double price = jersey.getPrice() != 0 ? jersey.getPrice() : this.price;
+        int stock = jersey.getStock() != 0 ? jersey.getStock(): this.stock;
+        int team_id = jersey.getTeam_id() != 0 ? jersey.getTeam_id(): this.team_id;
+        int jersey_type_id = jersey.getJersey_type_id() != 0 ? jersey.getJersey_type_id(): this.jersey_type_id ;
+        return new Jersey(id, size, price, stock, team_id, jersey_type_id);
     }
 }

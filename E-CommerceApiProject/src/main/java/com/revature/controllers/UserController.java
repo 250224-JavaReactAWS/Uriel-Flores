@@ -4,6 +4,8 @@ import com.revature.models.User;
 import com.revature.response.ErrorMessage;
 import com.revature.services.UserService;
 import io.javalin.http.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -11,6 +13,7 @@ import java.util.Objects;
 public class UserController {
 
     private final UserService userService;
+    private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -49,24 +52,29 @@ public class UserController {
             ctx.status(400);
             // TO DO Add Error Message
             errorMessages.add(new ErrorMessage("Email is not valid"));
+            logger.warn("Register attempt made for invalid email: " + requestUser.getEmail());
         }
 
         if (!userService.isEmailAvailable(requestUser.getEmail())){
             ctx.status(400);
             // TO DO Add Error Message
             errorMessages.add(new ErrorMessage("An account with that email already exists"));
+            // Log a warning for a user attempting to register with a taken email
+            logger.warn("Register attempt made for taken email: " + requestUser.getEmail());
         }
         //Validate password
         if (!userService.validatePassword(requestUser.getPassword())){
             ctx.status(400);
             //TO DO Add error message
             errorMessages.add(new ErrorMessage("Password must have at least one Uppercase/Lowercase character and minimum 8 characters"));
+            logger.warn("Register attempt made for invalid password: " + requestUser.getPassword());
         }
         //Validate username
         if (!userService.validateUsername(requestUser.getUsername())){
             ctx.status(400);
             //TO DO Add error message
             errorMessages.add(new ErrorMessage("Username must have at least 8 characters"));
+            logger.warn("Register attempt made for invalid username: " + requestUser.getUsername());
 
         }
         //Check availability of the username
@@ -74,6 +82,7 @@ public class UserController {
             ctx.status(400);
             //TO DO Add error message
             errorMessages.add(new ErrorMessage("Username is already taken"));
+            logger.warn("Register attempt made for taken username: " + requestUser.getUsername());
         }
 
         if (!errorMessages.isEmpty()){
@@ -100,6 +109,8 @@ public class UserController {
             //ctx.json(new ErrorMessage("Something went wrong!"));
             return;
         }
+
+        logger.info("New user registered with username: " + registeredUser.getUsername());
         ctx.status(201);
         ctx.json(registeredUser);
     }
@@ -115,6 +126,7 @@ public class UserController {
             ctx.status(400);
             // TO DO Add Error Message
             errorMessages.add(new ErrorMessage("Email is not valid please write a correct one"));
+            logger.warn("Login attempt made for invalid email: " + requestUser.getEmail());
         }
 
         //Attempt to log in
@@ -133,10 +145,11 @@ public class UserController {
         //If everything goes correct return user and add him to the session
         ctx.status(200);
         ctx.json(returnedUser);
+        logger.info("New user logged in with username: " + returnedUser.getUsername());
 
         //Adding user to session
         ctx.sessionAttribute("user_id", returnedUser.getUser_id());
-        ctx.sessionAttribute("role", requestUser.getRole());
+        ctx.sessionAttribute("role", returnedUser.getRole());
 
     }
 
@@ -170,12 +183,14 @@ public class UserController {
             ctx.status(400);
             // TO DO Add Error Message
             errorMessages.add(new ErrorMessage("Email is not valid"));
+            logger.warn("Update attempt made for invalid email: " + requestUser.getEmail());
         }
 
         if (!requestUser.getEmail().isEmpty() && !userService.isEmailAvailable(requestUser.getEmail())){
             ctx.status(400);
             // TO DO Add Error Message
             errorMessages.add(new ErrorMessage("An account with that email already exists"));
+            logger.warn("Update attempt made for a taken email: " + requestUser.getEmail());
         }
 
         //Validate username
@@ -183,6 +198,7 @@ public class UserController {
             ctx.status(400);
             //TO DO Add error message
             errorMessages.add(new ErrorMessage("Username must have at least 8 characters"));
+            logger.warn("Update attempt made for an invalid Username: " + requestUser.getUsername());
 
         }
         //Check availability of the username
@@ -190,6 +206,7 @@ public class UserController {
             ctx.status(400);
             //TO DO Add error message
             errorMessages.add(new ErrorMessage("Username is already taken"));
+            logger.warn("Update attempt made for a taken Username: " + requestUser.getUsername());
         }
 
         if (!errorMessages.isEmpty()){
@@ -217,6 +234,7 @@ public class UserController {
 
         ctx.status(201);
         ctx.json(updatedUser);
+        logger.info("Profile details was updated for User with username: " + updatedUser.getUsername());
 
     }
 
@@ -248,6 +266,7 @@ public class UserController {
             ctx.status(400);
             //TO DO Add error message
             errorMessages.add(new ErrorMessage("Password must have at least one Uppercase/Lowercase character and minimum 8 characters"));
+            logger.warn("Reset password attempt made for an invalid password: " + ctx.formParam("password"));
         }
 
         //Validate that both passwords matches;
@@ -278,6 +297,8 @@ public class UserController {
 
         ctx.status(201);
         ctx.json(result);
+
+        logger.info("Password was reset for User with user Id: " + userId);
 
     }
 }
